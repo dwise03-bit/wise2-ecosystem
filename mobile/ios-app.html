@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WISE²">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>WISE² iOS App</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+    }
+    * { box-sizing: border-box; }
+    html, body { 
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 100%;
+    }
+    .header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    h1 { margin: 0; font-size: 24px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>⬡ WISE²</h1>
+    </div>
+    <div class="content">
+      <p>iOS Web App - Ready for home screen install</p>
+    </div>
+  </div>
+</body>
+</html>

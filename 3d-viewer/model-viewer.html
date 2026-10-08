@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² 3D Model Viewer</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+      --border: #1e2432;
+    }
+    * { box-sizing: border-box; }
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui;
+    }
+    #canvas { width: 100%; height: 100%; display: block; }
+    
+    .ui-panel {
+      position: absolute;
+      background: rgba(10, 14, 26, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      color: var(--fg);
+      font-size: 12px;
+      font-family: monospace;
+      line-height: 1.6;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
+    #info {
+      top: 12px;
+      left: 12px;
+      min-width: 280px;
+    }
+
+    #controls {
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      max-width: 600px;
+    }
+
+    .button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+    }
+
+    #upload {
+      display: none;
+    }
+
+    .stat { display: flex; justify-content: space-between; margin: 4px 0; }
+    .label { color: var(--accent); }
+    .value { text-align: right; }
+
+    #arToggle { position: absolute; bottom: 20px; right: 20px; }
+
+    @media (max-width: 768px) {
+      #info { min-width: 200px; font-size: 10px; }
+      #controls { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div id="info" class="ui-panel">
+    <div style="color: var(--accent); font-weight: bold; margin-bottom: 8px;">⬡ MODEL VIEWER</div>
+    <div class="stat">
+      <span class="label">Vertices:</span>
+      <span class="value" id="vertices">—</span>
+    </div>
+    <div class="stat">
+      <span class="label">Triangles:</span>
+      <span class="value" id="triangles">—</span>
+    </div>
+    <div class="stat">
+      <span class="label">Materials:</span>
+      <span class="value" id="materials">—</span>
+    </div>
+    <div class="stat">
+      <span class="label">File Size:</span>
+      <span class="value" id="filesize">—</span>
+    </div>
+    <div class="stat">
+      <span class="label">Format:</span>
+      <span class="value" id="format">—</span>
+    </div>
+    <div style="margin-top: 12px; font-size: 10px; color: var(--fg); opacity: 0.7;">
+      Drag & Drop GLB/GLTF/OBJ/FBX<br>
+      Mouse: Rotate | Wheel: Zoom<br>
+      Right-click: Pan
+    </div>
+  </div>
+
+  <div id="controls" class="ui-panel">
+    <button class="button" onclick="document.getElementById('upload').click()">📁 Load Model</button>
+    <button class="button" onclick="toggleGrid()">⊞ Grid</button>
+    <button class="button" onclick="toggleAxes()">⊕ Axes</button>
+    <button class="button" onclick="fitCamera()">🎯 Fit</button>
+    <button class="button" onclick="resetView()">↻ Reset</button>
+    <button class="button" onclick="toggleWireframe()">▦ Wireframe</button>
+    <button class="button" id="arToggle" onclick="toggleAR()">📱 AR Preview</button>
+  </div>
+
+  <input id="upload" type="file" accept=".glb,.gltf,.obj,.fbx">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/loaders/OBJLoader.js"></script>
+  <script>
+    let scene, camera, renderer, model, controls;
+    let showGrid = true, showAxes = true, wireframeMode = false;
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0e1a);
+      scene.fog = new THREE.Fog(0x0a0e1a, 50, 100);
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+      camera.position.set(0, 5, 10);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      // Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 2;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(10, 10, 5);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const pointLight = new THREE.PointLight(0x00ff88, 0.5);
+      pointLight.position.set(-10, 5, 0);
+      scene.add(pointLight);
+
+      // Grid
+      const gridHelper = new THREE.GridHelper(50, 50, 0x444444, 0x222222);
+      gridHelper.name = 'grid';
+      scene.add(gridHelper);
+
+      // Axes
+      const axesHelper = new THREE.AxesHelper(5);
+      axesHelper.name = 'axes';
+      scene.add(axesHelper);
+
+      // Drag & Drop
+      document.addEventListener('dragover', e => e.preventDefault());
+      document.addEventListener('drop', handleDrop);
+
+      // File upload
+      document.getElementById('upload').addEventListener('change', handleFileSelect);
+
+      // Resize
+      window.addEventListener('resize', onWindowResize);
+
+      // Render loop
+      renderer.setAnimationLoop(render);
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files.length > 0) loadModel(files[0]);
+    }
+
+    function handleFileSelect(e) {
+      if (e.target.files.length > 0) loadModel(e.target.files[0]);
+    }
+
+    function loadModel(file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const arrayBuffer = event.target.result;
+
+        if (model) scene.remove(model);
+
+        if (ext === 'glb' || ext === 'gltf') {
+          const loader = new THREE.GLTFLoader();
+          loader.parse(arrayBuffer, '', (gltf) => {
+            model = gltf.scene;
+            scene.add(model);
+            fitCamera();
+            updateStats(file.name, file.size, ext);
+          });
+        } else if (ext === 'obj') {
+          const loader = new THREE.OBJLoader();
+          model = loader.parse(new TextDecoder().decode(arrayBuffer));
+          scene.add(model);
+          fitCamera();
+          updateStats(file.name, file.size, ext);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function updateStats(filename, filesize, format) {
+      const geometry = getGeometry();
+      document.getElementById('vertices').textContent = geometry.vertices;
+      document.getElementById('triangles').textContent = geometry.triangles;
+      document.getElementById('materials').textContent = geometry.materials;
+      document.getElementById('filesize').textContent = (filesize / 1024).toFixed(1) + ' KB';
+      document.getElementById('format').textContent = format.toUpperCase();
+    }
+
+    function getGeometry() {
+      let vertices = 0, triangles = 0, materials = 0;
+      if (model) {
+        model.traverse(child => {
+          if (child.geometry) {
+            vertices += child.geometry.attributes.position?.count || 0;
+            if (child.geometry.index) {
+              triangles += child.geometry.index.count / 3;
+            }
+          }
+          if (child.material) materials++;
+        });
+      }
+      return { vertices, triangles, materials };
+    }
+
+    function fitCamera() {
+      if (!model) return;
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      const distance = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      camera.position.z = distance;
+      controls.target.copy(box.getCenter(new THREE.Vector3()));
+      controls.update();
+    }
+
+    function toggleGrid() {
+      showGrid = !showGrid;
+      scene.getObjectByName('grid').visible = showGrid;
+    }
+
+    function toggleAxes() {
+      showAxes = !showAxes;
+      scene.getObjectByName('axes').visible = showAxes;
+    }
+
+    function toggleWireframe() {
+      wireframeMode = !wireframeMode;
+      if (model) {
+        model.traverse(child => {
+          if (child.material) {
+            child.material.wireframe = wireframeMode;
+          }
+        });
+      }
+    }
+
+    function resetView() {
+      if (model) {
+        scene.remove(model);
+        model = null;
+        document.querySelectorAll('#info .value').forEach(el => el.textContent = '—');
+      }
+    }
+
+    function toggleAR() {
+      if (navigator.xr) {
+        navigator.xr.isSessionSupported('immersive-ar').then(supported => {
+          if (supported) {
+            alert('AR preview: Place model in your space');
+          }
+        });
+      }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function render() {
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>

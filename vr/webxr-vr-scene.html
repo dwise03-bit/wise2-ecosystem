@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WISE² VR Experience</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body { background: var(--bg); color: var(--fg); font-family: system-ui; }
+    
+    canvas { display: block; width: 100%; height: 100%; }
+    
+    #ui {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    #stats {
+      font-size: 14px;
+      color: var(--accent);
+      font-family: monospace;
+      line-height: 1.6;
+    }
+    
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 12px 24px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <div id="stats">
+      WISE² VR | FPS: <span id="fps">0</span> | Headset: <span id="headset">Detecting...</span>
+    </div>
+  </div>
+  
+  <div id="controls">
+    <button id="startXR">📱 Start VR</button>
+    <button id="toggleAR">🎯 AR Mode</button>
+    <button id="resetView">↻ Reset</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    let scene, camera, renderer, xrSession, arMode = false;
+    let frameCount = 0, lastTime = Date.now();
+
+    async function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0e1a);
+      
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+      
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      // Hexagonal hive-themed environment
+      createEnvironment();
+      createInteractiveObjects();
+      
+      window.addEventListener('resize', onWindowResize);
+      document.getElementById('startXR').addEventListener('click', startXR);
+      document.getElementById('toggleAR').addEventListener('click', toggleAR);
+      document.getElementById('resetView').addEventListener('click', resetView);
+      
+      // Animation loop
+      renderer.setAnimationLoop((time, frame) => {
+        updateStats();
+        render(time, frame);
+      });
+    }
+
+    function createEnvironment() {
+      // Hexagonal floor
+      const floorGeometry = new THREE.CylinderGeometry(10, 10, 0.1, 6);
+      const floorMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x0f1419,
+        metalness: 0.3,
+        roughness: 0.8
+      });
+      const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+      floor.position.y = -2;
+      scene.add(floor);
+
+      // Ambient lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      // Green accent light
+      const accentLight = new THREE.PointLight(0x00ff88, 1, 50);
+      accentLight.position.set(5, 5, 5);
+      scene.add(accentLight);
+
+      // Rotating hexagon marker
+      const hexGeometry = new THREE.OctahedronGeometry(1);
+      const hexMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x00ff88,
+        emissive: 0x00ff88,
+        emissiveIntensity: 0.3
+      });
+      const hex = new THREE.Mesh(hexGeometry, hexMaterial);
+      hex.castShadow = true;
+      hex.receiveShadow = true;
+      hex.userData.type = 'marker';
+      scene.add(hex);
+    }
+
+    function createInteractiveObjects() {
+      for (let i = 0; i < 3; i++) {
+        const geometry = new THREE.IcosahedronGeometry(0.5, 2);
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x6366f1,
+          metalness: 0.5,
+          roughness: 0.5
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(-4 + i * 4, 0, -3);
+        mesh.castShadow = true;
+        mesh.userData.type = 'interactive';
+        mesh.userData.index = i;
+        scene.add(mesh);
+      }
+    }
+
+    function updateStats() {
+      frameCount++;
+      const now = Date.now();
+      if (now >= lastTime + 1000) {
+        document.getElementById('fps').textContent = frameCount;
+        frameCount = 0;
+        lastTime = now;
+      }
+    }
+
+    function render(time, frame) {
+      // Rotate markers
+      scene.children.forEach(child => {
+        if (child.userData.type === 'marker') {
+          child.rotation.x += 0.01;
+          child.rotation.y += 0.02;
+        }
+        if (child.userData.type === 'interactive') {
+          child.rotation.x += 0.005;
+          child.rotation.y += 0.01;
+          child.position.y = Math.sin(time * 0.001 + child.userData.index) * 0.5;
+        }
+      });
+
+      if (frame) {
+        renderer.render(scene, camera);
+      } else {
+        renderer.render(scene, camera);
+      }
+    }
+
+    async function startXR() {
+      if (!navigator.xr) {
+        alert('WebXR not supported on this device');
+        document.getElementById('headset').textContent = 'Not supported';
+        return;
+      }
+
+      try {
+        const sessionInit = { 
+          requiredFeatures: ['viewer', 'local'],
+          optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+        };
+        
+        xrSession = await navigator.xr.requestSession('immersive-vr', sessionInit);
+        document.getElementById('headset').textContent = 'VR Active';
+        document.getElementById('startXR').textContent = 'Exit VR';
+        
+        xrSession.addEventListener('end', () => {
+          xrSession = null;
+          document.getElementById('headset').textContent = 'Headset ready';
+          document.getElementById('startXR').textContent = 'Start VR';
+        });
+      } catch (error) {
+        console.error('XR session error:', error);
+        document.getElementById('headset').textContent = 'Error: ' + error.message;
+      }
+    }
+
+    async function toggleAR() {
+      if (!navigator.xr) return;
+      
+      try {
+        if (arMode) {
+          document.getElementById('toggleAR').textContent = '🎯 AR Mode';
+          arMode = false;
+        } else {
+          const sessionInit = { 
+            requiredFeatures: ['viewer', 'dom-overlay'],
+            domOverlay: { root: document.body },
+            optionalFeatures: ['dom-overlay-for-handheld-ar', 'hit-test', 'dom-plane']
+          };
+          
+          xrSession = await navigator.xr.requestSession('immersive-ar', sessionInit);
+          document.getElementById('toggleAR').textContent = '📷 Exit AR';
+          document.getElementById('headset').textContent = 'AR Active';
+          arMode = true;
+        }
+      } catch (error) {
+        console.error('AR error:', error);
+      }
+    }
+
+    function resetView() {
+      camera.position.set(0, 0, 5);
+      camera.rotation.order = 'YXZ';
+      camera.rotation.set(0, 0, 0);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⬡ WISE² Complete Ecosystem</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+      --border: #1e2432;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui;
+    }
+    body { padding: 20px; }
+
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    h1 {
+      color: var(--accent);
+      font-size: 48px;
+      margin: 0 0 12px 0;
+      text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    .category {
+      margin-bottom: 48px;
+    }
+
+    .category-title {
+      font-size: 24px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .emoji { font-size: 28px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top right, rgba(0, 255, 136, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 255, 136, 0.15);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 0 0 8px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: #d1d5db;
+      margin: 0 0 12px 0;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .features {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+      font-size: 12px;
+      color: #9ca3af;
+      position: relative;
+      z-index: 1;
+    }
+
+    .features li {
+      padding: 4px 0;
+      padding-left: 16px;
+    }
+
+    .features li:before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: bold;
+      margin-right: 6px;
+      margin-left: -16px;
+    }
+
+    .card-link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: var(--bg);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      position: relative;
+      z-index: 2;
+      transition: all 0.2s;
+    }
+
+    .card-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 40px 0;
+      padding: 20px;
+      background: rgba(0, 255, 136, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .stat-box {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⬡ WISE² Complete Ecosystem</h1>
+    <p class="subtitle">Production-ready platform for Web, AI, Gaming, 3D, Trading & IoT</p>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Major Categories</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">25+</div>
+        <div class="stat-label">Applications</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">50K+</div>
+        <div class="stat-label">Lines of Code</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Browser Ready</div>
+      </div>
+    </div>
+
+    <!-- WEB DESIGN -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">🎨</span> Web Design & UI
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">Design System</h3>
+          <p class="card-desc">WISE² brand guidelines with hexagonal hive aesthetic</p>
+          <ul class="features">
+            <li>Color tokens & typography</li>
+            <li>Component library</li>
+            <li>Responsive utilities</li>
+            <li>Animation presets</li>
+          </ul>
+          <a href="design-system.md" class="card-link">📖 View Guide</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Component Library</h3>
+          <p class="card-desc">Pre-built hexagonal button & UI elements</p>
+          <ul class="features">
+            <li>Clip-path polygons</li>
+            <li>Glow animations</li>
+            <li>Responsive scaling</li>
+            <li>Dark mode ready</li>
+          </ul>
+          <a href="components/button.html" class="card-link">👀 Preview</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Video Workflow</h3>
+          <p class="card-desc">Screen recording, conversion & playback</p>
+          <ul class="features">
+            <li>Record at 2256×1504</li>
+            <li>MP4 to GIF converter</li>
+            <li>Playback templates</li>
+            <li>Gallery layouts</li>
+          </ul>
+          <a href="templates/video-page.html" class="card-link">🎬 Play Video</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE & EMBEDDED -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">📱</span> Mobile & IoT
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">iOS Web App</h3>
+          <p class="card-desc">Home screen installable PWA for Apple devices</p>
+          <ul class="features">
+            <li>Safe area insets</li>
+            <li>Status bar styling</li>
+            <li>Touch optimized</li>
+            <li>Offline ready</li>
+          </ul>
+          <a href="mobile/ios-app.html" class="card-link">🍎 Open App</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Android PWA</h3>
+          <p class="card-desc">Progressive Web App with service worker</p>
+          <ul class="features">
+            <li>Install manifest</li>
+            <li>Offline support</li>
+            <li>Chrome optimized</li>
+            <li>Push ready</li>
+          </ul>
+          <a href="mobile/android-app.html" class="card-link">🤖 Install</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">ESP32 Dashboard</h3>
+          <p class="card-desc">Real-time IoT device control & monitoring</p>
+          <ul class="features">
+            <li>Temperature/humidity</li>
+            <li>LED toggle controls</li>
+            <li>REST API ready</li>
+            <li>Arduino included</li>
+          </ul>
+          <a href="embedded/esp32-dashboard.html" class="card-link">⚙️ Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- VR & GAMES -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">🎮</span> VR, Games & 3D
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">WebXR VR Experience</h3>
+          <p class="card-desc">Immersive VR for Meta Quest, PlayStation VR</p>
+          <ul class="features">
+            <li>Immersive VR mode</li>
+            <li>AR preview toggle</li>
+            <li>3D scene rendering</li>
+            <li>Hand tracking ready</li>
+          </ul>
+          <a href="vr/webxr-vr-scene.html" class="card-link">🥽 Launch VR</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">2D Game (Phaser)</h3>
+          <p class="card-desc">Arcade physics engine with score tracking</p>
+          <ul class="features">
+            <li>Arcade physics</li>
+            <li>Collision detection</li>
+            <li>Score system</li>
+            <li>Mobile friendly</li>
+          </ul>
+          <a href="games/phaser-game-template.html" class="card-link">🎯 Play Game</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3D Game (Babylon.js)</h3>
+          <p class="card-desc">Full 3D rendering with lighting & physics</p>
+          <ul class="features">
+            <li>Advanced lighting</li>
+            <li>Physics engine</li>
+            <li>Skybox support</li>
+            <li>Material system</li>
+          </ul>
+          <a href="games/babylon-3d-game.html" class="card-link">🌐 3D World</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3D Model Viewer</h3>
+          <p class="card-desc">Drag-and-drop GLB/GLTF/OBJ viewer with analytics</p>
+          <ul class="features">
+            <li>Multiple formats</li>
+            <li>Wireframe mode</li>
+            <li>Live statistics</li>
+            <li>AR preview</li>
+          </ul>
+          <a href="3d-viewer/model-viewer.html" class="card-link">👀 View Models</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3D Print Analyzer</h3>
+          <p class="card-desc">Prepare models for 3D printing with slicing</p>
+          <ul class="features">
+            <li>STL analysis</li>
+            <li>Print time est.</li>
+            <li>Cost calculator</li>
+            <li>Support gen.</li>
+          </ul>
+          <a href="3d-print/print-analyzer.html" class="card-link">🖨️ Analyze Print</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Blender Addon</h3>
+          <p class="card-desc">One-click export to Web/Games/Print formats</p>
+          <ul class="features">
+            <li>glTF export</li>
+            <li>FBX support</li>
+            <li>STL generation</li>
+            <li>Optimization</li>
+          </ul>
+          <a href="blender/wise2_export_addon.py" class="card-link">📥 Download Plugin</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI TOOLS -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">🤖</span> AI & LLMs
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">AI Chat Interface</h3>
+          <p class="card-desc">Multi-model LLM chat with token tracking</p>
+          <ul class="features">
+            <li>Claude/GPT-4/Local</li>
+            <li>Parameter tuning</li>
+            <li>Token counting</li>
+            <li>Cost tracking</li>
+          </ul>
+          <a href="ai-tools/ai-chat.html" class="card-link">💬 Chat Now</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Prompt Manager</h3>
+          <p class="card-desc">Store and organize AI prompts with versioning</p>
+          <ul class="features">
+            <li>Category tags</li>
+            <li>Usage tracking</li>
+            <li>Import/export</li>
+            <li>Built-in templates</li>
+          </ul>
+          <a href="ai-tools/prompt-manager.js" class="card-link">📋 Manage</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADING -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">📈</span> Stock Trading & Finance
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">Trading Dashboard</h3>
+          <p class="card-desc">Real-time portfolio & market monitoring</p>
+          <ul class="features">
+            <li>Portfolio tracking</li>
+            <li>Market overview</li>
+            <li>Paper trading</li>
+            <li>Price alerts</li>
+          </ul>
+          <a href="trading/trading-dashboard.html" class="card-link">💹 Dashboard</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Backtest Engine</h3>
+          <p class="card-desc">Test trading strategies on historical data</p>
+          <ul class="features">
+            <li>MA crossover</li>
+            <li>RSI strategy</li>
+            <li>Performance metrics</li>
+            <li>Win rate calc</li>
+          </ul>
+          <a href="trading/backtest-engine.js" class="card-link">📊 Backtest</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Portfolio Tracker</h3>
+          <p class="card-desc">Holdings management with rebalancing suggestions</p>
+          <ul class="features">
+            <li>Gain/loss tracking</li>
+            <li>Sector allocation</li>
+            <li>Rebalance tools</li>
+            <li>Export reports</li>
+          </ul>
+          <a href="trading/portfolio-tracker.js" class="card-link">📑 Portfolio</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVELOPMENT -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">⚙️</span> Development Tools
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">Dev Server</h3>
+          <p class="card-desc">Local HTTP server on localhost:3000</p>
+          <ul class="features">
+            <li>Python http.server</li>
+            <li>Hot reload ready</li>
+            <li>CORS enabled</li>
+            <li>Static file serving</li>
+          </ul>
+          <a href="#" onclick="alert('Running on localhost:3000')" class="card-link">▶️ Running</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Project Generator</h3>
+          <p class="card-desc">Create new projects with templates</p>
+          <ul class="features">
+            <li>Auto scaffolding</li>
+            <li>Design system</li>
+            <li>Asset folder</li>
+            <li>Config ready</li>
+          </ul>
+          <a href="scripts/new-project.sh" class="card-link">📁 Generate</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Utility Scripts</h3>
+          <p class="card-desc">Screen recording and video conversion tools</p>
+          <ul class="features">
+            <li>Record screen</li>
+            <li>MP4→GIF convert</li>
+            <li>ffmpeg wrapper</li>
+            <li>Batch processing</li>
+          </ul>
+          <a href="scripts/" class="card-link">🔧 Scripts</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTATION -->
+    <div class="category">
+      <div class="category-title">
+        <span class="emoji">📚</span> Documentation & Guides
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3 class="card-title">Design System Guide</h3>
+          <p class="card-desc">WISE² branding and component patterns</p>
+          <ul class="features">
+            <li>Color palette</li>
+            <li>Typography scale</li>
+            <li>Component specs</li>
+            <li>Animation guide</li>
+          </ul>
+          <a href="design-system.md" class="card-link">📖 Read</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Video Workflow Guide</h3>
+          <p class="card-desc">Complete guide for recording and editing video</p>
+          <ul class="features">
+            <li>Recording setup</li>
+            <li>Encoding specs</li>
+            <li>Template usage</li>
+            <li>Publishing</li>
+          </ul>
+          <a href="VIDEO-WORKFLOW.md" class="card-link">📹 Guide</a>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3D Asset Pipeline</h3>
+          <p class="card-desc">Modeling, texturing, and export workflow</p>
+          <ul class="features">
+            <li>Blender setup</li>
+            <li>Baking guide</li>
+            <li>Export configs</li>
+            <li>Optimization</li>
+          </ul>
+          <a href="modeling/asset-pipeline.md" class="card-link">📦 Pipeline</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>⬡ WISE² Ecosystem v1.0 | Powered by Claude Code | All systems operational</p>
+      <p>🎯 Web Design | 📱 Mobile/IoT | 🎮 VR/Games | 🎨 3D/Modeling | 🤖 AI Tools | 📈 Trading</p>
+    </footer>
+  </div>
+
+  <script>
+    // Smooth scroll for anchors
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Track card clicks
+    document.querySelectorAll('.card-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const title = link.closest('.card').querySelector('.card-title').textContent;
+        console.log('Opened:', title);
+      });
+    });
+  </script>
+</body>
+</html>

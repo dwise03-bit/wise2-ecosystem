@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² Trading Dashboard</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+      --border: #1e2432;
+      --up: #10b981;
+      --down: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui;
+    }
+    body { padding: 16px; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #0f1419;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h2 {
+      color: var(--accent);
+      font-size: 16px;
+      margin: 0 0 12px 0;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-bottom: none; }
+
+    .label { color: #9ca3af; font-size: 13px; }
+    .value { font-weight: bold; font-family: monospace; }
+
+    .up { color: var(--up); }
+    .down { color: var(--down); }
+
+    .price-large {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 12px 0;
+    }
+
+    .change {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .change.up {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--up);
+    }
+
+    .change.down {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--down);
+    }
+
+    .chart-container {
+      height: 250px;
+      background: #050709;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .portfolio-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(0, 255, 136, 0.05);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .symbol { font-weight: bold; color: var(--accent); }
+    .shares { color: #9ca3af; }
+
+    input, select, button {
+      padding: 8px;
+      background: #050709;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+    }
+
+    .alert {
+      padding: 12px;
+      background: rgba(255, 170, 0, 0.1);
+      border-left: 3px solid #ffaa00;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .wide { grid-column: span 2; }
+
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .wide { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <h1 style="color: var(--accent); margin-top: 0;">⬡ WISE² Trading Dashboard</h1>
+
+  <div class="dashboard">
+    <!-- Portfolio Overview -->
+    <div class="card">
+      <h2>💼 Portfolio</h2>
+      <div class="stat">
+        <span class="label">Total Value</span>
+        <span class="value" id="totalValue">$125,430</span>
+      </div>
+      <div class="stat">
+        <span class="label">Day Change</span>
+        <span class="value up" id="dayChange">+$2,340 (+1.89%)</span>
+      </div>
+      <div class="stat">
+        <span class="label">YTD Return</span>
+        <span class="value up">+18.4%</span>
+      </div>
+      <div class="stat">
+        <span class="label">Cash</span>
+        <span class="value">$15,230</span>
+      </div>
+    </div>
+
+    <!-- Market Overview -->
+    <div class="card">
+      <h2>📊 Market</h2>
+      <div class="stat">
+        <span class="label">S&P 500</span>
+        <span class="value up">5,432.10 +0.82%</span>
+      </div>
+      <div class="stat">
+        <span class="label">NASDAQ</span>
+        <span class="value up">18,234.50 +1.12%</span>
+      </div>
+      <div class="stat">
+        <span class="label">VIX</span>
+        <span class="value down">12.45 -1.2%</span>
+      </div>
+      <div class="stat">
+        <span class="label">Bitcoin</span>
+        <span class="value up">$67,890 +5.34%</span>
+      </div>
+    </div>
+
+    <!-- Top Holdings -->
+    <div class="card">
+      <h2>🏆 Top Holdings</h2>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">AAPL</div>
+          <div class="shares">450 shares</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="value up">$210.50</div>
+          <div class="change up">+2.3%</div>
+        </div>
+      </div>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">MSFT</div>
+          <div class="shares">320 shares</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="value up">$420.15</div>
+          <div class="change up">+1.8%</div>
+        </div>
+      </div>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">TSLA</div>
+          <div class="shares">200 shares</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="value down">$185.40</div>
+          <div class="change down">-0.5%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Trade -->
+    <div class="card">
+      <h2>📈 Quick Trade</h2>
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 12px; margin-bottom: 4px;">Symbol</label>
+        <input type="text" placeholder="e.g., AAPL" id="symbol">
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 12px; margin-bottom: 4px;">Quantity</label>
+        <input type="number" placeholder="100" id="quantity" value="100">
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 12px; margin-bottom: 4px;">Type</label>
+        <select id="orderType">
+          <option>Market (Paper)</option>
+          <option>Limit</option>
+          <option>Stop Loss</option>
+        </select>
+      </div>
+      <button onclick="placeTrade()">📍 Simulate Trade</button>
+    </div>
+
+    <!-- Risk Management -->
+    <div class="card">
+      <h2>⚠️ Risk Metrics</h2>
+      <div class="stat">
+        <span class="label">Portfolio Beta</span>
+        <span class="value">1.24</span>
+      </div>
+      <div class="stat">
+        <span class="label">Max Drawdown</span>
+        <span class="value down">-12.3%</span>
+      </div>
+      <div class="stat">
+        <span class="label">Sharpe Ratio</span>
+        <span class="value up">1.87</span>
+      </div>
+      <div class="stat">
+        <span class="label">Sector Allocation</span>
+        <span class="value">Tech: 45%</span>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card">
+      <h2>🔔 Alerts</h2>
+      <div class="alert">
+        ⚠️ AAPL approaching buy target: $210
+      </div>
+      <div class="alert" style="border-color: var(--up); background: rgba(16, 185, 129, 0.05);">
+        ✓ MSFT hit support level at $415
+      </div>
+      <button onclick="manageAlerts()" style="width: 100%; margin-top: 12px;">Manage Alerts</button>
+    </div>
+
+    <!-- Watchlist -->
+    <div class="card">
+      <h2>👁️ Watchlist</h2>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">AMD</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: bold;">$210.50</div>
+          <div class="change up">+3.2%</div>
+        </div>
+      </div>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">NVDA</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: bold;">$875.30</div>
+          <div class="change down">-1.1%</div>
+        </div>
+      </div>
+      <div class="portfolio-item">
+        <div>
+          <div class="symbol">CRM</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: bold;">$310.75</div>
+          <div class="change up">+0.8%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Chart (Wide) -->
+    <div class="card wide">
+      <h2>📉 Performance (30 Days)</h2>
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+        <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 12px;">
+          📊 Chart visualization area - integrate Chart.js or Lightweight Charts
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function placeTrade() {
+      const symbol = document.getElementById('symbol').value || 'AAPL';
+      const quantity = document.getElementById('quantity').value;
+      const type = document.getElementById('orderType').value;
+      
+      alert(`📍 Simulated ${type} Order:
+Symbol: ${symbol}
+Quantity: ${quantity}
+Type: ${type}
+
+(Paper trading - no real money)`);
+    }
+
+    function manageAlerts() {
+      alert('Alert Management:\n\n✓ Create price alerts\n✓ Technical indicators\n✓ Earnings announcements\n✓ News triggers');
+    }
+
+    // Simulate live data updates
+    setInterval(() => {
+      const change = Math.random() * 100 - 50;
+      const upDown = change > 0 ? 'up' : 'down';
+      const sign = change > 0 ? '+' : '';
+      document.getElementById('dayChange').textContent = `${sign}$${change.toFixed(0)} (${sign}${(change/125430*100).toFixed(2)}%)`;
+      document.getElementById('dayChange').className = `value ${upDown}`;
+    }, 5000);
+  </script>
+</body>
+</html>

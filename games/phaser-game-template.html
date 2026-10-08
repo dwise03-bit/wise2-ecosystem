@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² Game Studio</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0e1a;
+      color: #e0e6f0;
+      font-family: system-ui;
+      overflow: hidden;
+    }
+    #game { width: 100vw; height: 100vh; }
+    #ui {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 14px;
+      color: #00ff88;
+      font-family: monospace;
+      z-index: 100;
+      pointer-events: none;
+    }
+    #score, #level, #lives { display: block; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="ui">
+    <span id="score">Score: 0</span>
+    <span id="level">Level: 1</span>
+    <span id="lives">Lives: ❤️❤️❤️</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+  <script>
+    const config = {
+      type: Phaser.AUTO,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: '#0a0e1a',
+      physics: {
+        default: 'arcade',
+        arcade: { gravity: { y: 300 }, debug: false }
+      },
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      },
+      render: { pixelArt: true }
+    };
+
+    const game = new Phaser.Game(config);
+    let gameState = {
+      score: 0,
+      level: 1,
+      lives: 3,
+      enemies: [],
+      player: null
+    };
+
+    function preload() {
+      this.load.image('player', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMDBmZjg4Ii8+PC9zdmc+');
+      this.load.image('enemy', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM2MzY2ZjEiLz48L3N2Zz4=');
+    }
+
+    function create() {
+      gameState.player = this.physics.add.sprite(window.innerWidth / 2, window.innerHeight - 50, 'player');
+      gameState.player.setBounce(0.2);
+      gameState.player.setCollideWorldBounds(true);
+
+      this.input.keyboard.on('keydown-LEFT', () => gameState.player.setVelocityX(-200));
+      this.input.keyboard.on('keydown-RIGHT', () => gameState.player.setVelocityX(200));
+      this.input.keyboard.on('keyup-LEFT', () => gameState.player.setVelocityX(0));
+      this.input.keyboard.on('keyup-RIGHT', () => gameState.player.setVelocityX(0));
+      
+      for (let i = 0; i < 3; i++) {
+        spawnEnemy.call(this);
+      }
+    }
+
+    function update() {
+      gameState.enemies = gameState.enemies.filter(e => e.active);
+      
+      gameState.enemies.forEach(enemy => {
+        if (Phaser.Math.Distance.Between(gameState.player.x, gameState.player.y, enemy.x, enemy.y) < 40) {
+          gameState.lives--;
+          if (gameState.lives <= 0) {
+            alert('Game Over! Score: ' + gameState.score);
+            location.reload();
+          }
+          updateUI();
+        }
+      });
+    }
+
+    function spawnEnemy(scene) {
+      const x = Phaser.Math.Between(50, window.innerWidth - 50);
+      const enemy = this.physics.add.sprite(x, 0, 'enemy');
+      enemy.setVelocityY(Phaser.Math.Between(100, 200));
+      
+      this.physics.add.overlap(gameState.player, enemy, () => {
+        enemy.destroy();
+        gameState.score += 10;
+        updateUI();
+        spawnEnemy.call(this);
+      });
+
+      gameState.enemies.push(enemy);
+    }
+
+    function updateUI() {
+      document.getElementById('score').textContent = 'Score: ' + gameState.score;
+      document.getElementById('level').textContent = 'Level: ' + gameState.level;
+      document.getElementById('lives').textContent = 'Lives: ' + '❤️'.repeat(gameState.lives);
+    }
+  </script>
+</body>
+</html>

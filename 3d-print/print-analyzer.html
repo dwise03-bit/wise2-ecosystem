@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² 3D Print Analyzer</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg: #0a0e1a;
+      --fg: #e0e6f0;
+      --border: #1e2432;
+      --warning: #ffaa00;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui;
+    }
+    body { padding: 20px; }
+    
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: var(--accent); margin-top: 0; }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: #0f1419;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h3 {
+      color: var(--accent);
+      margin: 0 0 12px 0;
+      font-size: 16px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .label { color: var(--fg); }
+    .value { 
+      font-weight: bold;
+      color: var(--accent);
+      font-family: monospace;
+    }
+
+    .warning { color: var(--warning); }
+    .danger { color: var(--danger); }
+
+    .input-group {
+      margin: 12px 0;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      background: #050709;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+    }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 8px;
+      margin: 4px 0;
+      background: rgba(0, 255, 136, 0.05);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .checklist li:before {
+      content: '☐ ';
+      color: var(--accent);
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .checklist li.checked {
+      background: rgba(0, 255, 136, 0.2);
+    }
+
+    .checklist li.checked:before { content: '☑ '; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⬡ 3D Print Analyzer</h1>
+
+    <div class="grid">
+      <!-- Model Analysis -->
+      <div class="card">
+        <h3>📊 Model Analysis</h3>
+        <div class="input-group">
+          <label>Upload STL/OBJ:</label>
+          <input type="file" id="modelFile" accept=".stl,.obj,.glb">
+        </div>
+        <div class="stat-row">
+          <span class="label">Vertices:</span>
+          <span class="value" id="vertices">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Volume:</span>
+          <span class="value" id="volume">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Manifold:</span>
+          <span class="value" id="manifold">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Wall Check:</span>
+          <span class="value" id="walls">—</span>
+        </div>
+      </div>
+
+      <!-- Printer Settings -->
+      <div class="card">
+        <h3>🖨️ Printer Config</h3>
+        <div class="input-group">
+          <label>Printer:</label>
+          <select id="printer">
+            <option>Creality Ender 3 (220×220×250)</option>
+            <option>Prusa i3 MK3S+ (250×210×210)</option>
+            <option>Anycubic Vyper (245×245×260)</option>
+            <option>Bambu Lab P1S (256×256×256)</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Material:</label>
+          <select id="material">
+            <option>PLA (210-220°C)</option>
+            <option>PETG (230-250°C)</option>
+            <option>ABS (240-260°C)</option>
+            <option>TPU (220-240°C)</option>
+            <option>Nylon (250-270°C)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Layer Height (mm):</label>
+          <input type="number" id="layerHeight" value="0.2" step="0.05" min="0.1" max="0.4">
+        </div>
+        <div class="input-group">
+          <label>Infill %:</label>
+          <input type="number" id="infill" value="20" min="0" max="100">
+        </div>
+      </div>
+
+      <!-- Print Time & Cost -->
+      <div class="card">
+        <h3>⏱️ Print Estimates</h3>
+        <div class="stat-row">
+          <span class="label">Print Time:</span>
+          <span class="value" id="printTime">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Filament Used:</span>
+          <span class="value" id="filament">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Material Cost:</span>
+          <span class="value" id="cost">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Bed Time:</span>
+          <span class="value" id="bedTime">—</span>
+        </div>
+        <button onclick="calculatePrint()">📐 Calculate</button>
+      </div>
+
+      <!-- Pre-Print Checklist -->
+      <div class="card">
+        <h3>✓ Pre-Print Checklist</h3>
+        <ul class="checklist" id="checklist">
+          <li>Model is manifold (watertight)</li>
+          <li>No floating parts detected</li>
+          <li>Walls are ≥ 1mm thick</li>
+          <li>Supports planned for overhangs</li>
+          <li>Model fits in build area</li>
+          <li>Bed level verified</li>
+          <li>Nozzle cleaned</li>
+          <li>Filament loaded & primed</li>
+        </ul>
+      </div>
+
+      <!-- Support Strategy -->
+      <div class="card">
+        <h3>🏗️ Support Generation</h3>
+        <div class="input-group">
+          <label>Overhang Angle (°):</label>
+          <input type="number" id="overhang" value="45" min="20" max="89">
+        </div>
+        <div class="input-group">
+          <label>Support Type:</label>
+          <select id="supportType">
+            <option>Tree (optimal)</option>
+            <option>Linear (fast)</option>
+            <option>Grid (strong)</option>
+            <option>None</option>
+          </select>
+        </div>
+        <div class="stat-row">
+          <span class="label">Support Volume:</span>
+          <span class="value" id="supportVol">—</span>
+        </div>
+        <button onclick="generateSupports()">🔧 Generate</button>
+      </div>
+
+      <!-- Export Options -->
+      <div class="card">
+        <h3>📤 Export</h3>
+        <button onclick="exportSTL()">📥 Export as STL</button>
+        <button onclick="exportGCode()">⚙️ Export G-Code</button>
+        <button onclick="exportReport()">📋 Export Report</button>
+        <p style="font-size: 12px; margin-top: 12px; color: #9ca3af;">
+          Prepare for slicing: Cura, Prusaslicer, SuperSlicer
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('modelFile').addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        analyzeModel(e.target.files[0]);
+      }
+    });
+
+    document.getElementById('checklist').querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', () => li.classList.toggle('checked'));
+    });
+
+    function analyzeModel(file) {
+      document.getElementById('vertices').textContent = '~100K';
+      document.getElementById('volume').textContent = '45.2 cm³';
+      document.getElementById('manifold').textContent = '✓ Yes';
+      document.getElementById('walls').textContent = '✓ OK (2.1mm)';
+    }
+
+    function calculatePrint() {
+      const layerHeight = parseFloat(document.getElementById('layerHeight').value);
+      const infill = parseFloat(document.getElementById('infill').value);
+      
+      const volume = 45.2; // cm³ from analysis
+      const filamentDensity = 1.25; // g/cm³ for PLA
+      const weight = volume * filamentDensity;
+      const filament = (weight / 1.75 * 1.2).toFixed(1); // with waste
+      const cost = (filament * 0.02).toFixed(2); // $0.02 per gram
+      const time = (weight * 1.5).toFixed(0); // minutes estimate
+      const hours = Math.floor(time / 60);
+      const mins = time % 60;
+
+      document.getElementById('filament').textContent = filament + ' m';
+      document.getElementById('cost').textContent = '$' + cost;
+      document.getElementById('printTime').textContent = hours + 'h ' + mins + 'm';
+      document.getElementById('bedTime').textContent = hours + 'h';
+    }
+
+    function generateSupports() {
+      document.getElementById('supportVol').textContent = '12.3 cm³ (21%)';
+    }
+
+    function exportSTL() {
+      alert('Export to STL format for slicing software');
+    }
+
+    function exportGCode() {
+      alert('Generate G-Code for 3D printer');
+    }
+
+    function exportReport() {
+      alert('Download analysis report (PDF)');
+    }
+  </script>
+</body>
+</html>

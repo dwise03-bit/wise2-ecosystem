@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² ESP32 Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0a0e1a;
+      color: #e0e6f0;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 24px; margin: 0 0 20px 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: #0f1419;
+      border: 1px solid #1e2432;
+      padding: 16px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .value {
+      font-size: 28px;
+      color: #00ff88;
+      font-weight: bold;
+    }
+    .label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+    button {
+      background: #00ff88;
+      color: #0a0e1a;
+      border: none;
+      padding: 8px 16px;
+      margin: 12px 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⬡ ESP32 Dashboard</h1>
+    
+    <div class="grid">
+      <div class="card">
+        <div class="value" id="temp">--</div>
+        <div class="label">Temperature (°C)</div>
+      </div>
+      <div class="card">
+        <div class="value" id="humidity">--</div>
+        <div class="label">Humidity (%)</div>
+      </div>
+      <div class="card">
+        <div class="value" id="pressure">--</div>
+        <div class="label">Pressure (hPa)</div>
+      </div>
+    </div>
+
+    <button onclick="updateData()">Refresh</button>
+
+    <div class="grid" style="margin-top: 20px;">
+      <div class="card">
+        <button onclick="toggle('led1')">LED 1</button>
+        <span id="led1-status">OFF</span>
+      </div>
+      <div class="card">
+        <button onclick="toggle('led2')">LED 2</button>
+        <span id="led2-status">OFF</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function updateData() {
+      try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        document.getElementById('temp').textContent = data.temp || '--';
+        document.getElementById('humidity').textContent = data.humidity || '--';
+        document.getElementById('pressure').textContent = data.pressure || '--';
+      } catch(e) {
+        console.log('ESP32 not responding');
+      }
+    }
+
+    async function toggle(device) {
+      try {
+        await fetch(`/api/toggle/${device}`, { method: 'POST' });
+        updateStatus();
+      } catch(e) {
+        console.log('Failed to toggle:', device);
+      }
+    }
+
+    async function updateStatus() {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        document.getElementById('led1-status').textContent = data.led1 ? 'ON' : 'OFF';
+        document.getElementById('led2-status').textContent = data.led2 ? 'ON' : 'OFF';
+      } catch(e) {
+        console.log('Status update failed');
+      }
+    }
+
+    setInterval(updateData, 5000);
+    updateData();
+    updateStatus();
+  </script>
+</body>
+</html>

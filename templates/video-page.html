@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Video Showcase</title>
+  <style>
+    :root {
+      --accent: #00ff88;
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #0f1419;
+      --fg-primary: #e0e6f0;
+      --fg-secondary: #9ca3af;
+      --border: #1e2432;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: var(--bg-primary);
+      color: var(--fg-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 18px;
+      padding: 40px;
+      zoom: 2;
+    }
+
+    .video-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      background: var(--bg-secondary);
+    }
+
+    .video-info {
+      border: 2px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+    }
+
+    h1 { font-size: 56px; margin: 0 0 16px 0; }
+    p { font-size: 18px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="video-container">
+    <h1>⬡ WISE² Video Demo</h1>
+    
+    <video controls>
+      <source src="demo.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="video-info">
+      <h2>About This Video</h2>
+      <p>Replace demo.mp4 with your video file. Supported formats:</p>
+      <ul>
+        <li>MP4 (h.264)</li>
+        <li>WebM (VP9)</li>
+        <li>OGV (Theora)</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
