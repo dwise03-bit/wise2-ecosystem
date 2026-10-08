@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  tvhub:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx-tvhub.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./tvhub-blakkhail.html:/usr/share/nginx/html/index.html:ro
+    environment:
+      - DOMAIN=tvhub.wise2.net
+      - DISPLAY_URL=https://blakkhail.com
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - wise2-network
+
+  # App server (serves static files)
+  app:
+    build: .
+    restart: always
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - wise2-network
+
+networks:
+  wise2-network:
+    driver: bridge

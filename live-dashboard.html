@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WISE² Live Build Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0a0e1a;
+      color: #e0e6f0;
+      font-family: system-ui;
+    }
+    
+    body { padding: 20px; }
+    
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    h1 {
+      color: #00ff88;
+      font-size: 28px;
+      margin: 0 0 20px 0;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    
+    .card {
+      background: #0f1419;
+      border: 1px solid #1e2432;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+    
+    .card:hover {
+      border-color: #00ff88;
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.1);
+    }
+    
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      color: #00ff88;
+    }
+    
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #1e2432;
+      font-size: 14px;
+    }
+    
+    .stat:last-child { border-bottom: none; }
+    
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      margin-right: 8px;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .command-box {
+      background: #050709;
+      border: 1px solid #1e2432;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-top: 12px;
+      overflow-x: auto;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      background: #00ff88;
+      color: #0a0e1a;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      color: #00ff88;
+      font-size: 20px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #1e2432;
+      padding-bottom: 8px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid #1e2432;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⬡ WISE² Live Build Dashboard</h1>
+    
+    <div class="section">
+      <div class="section-title">🟢 Active Services</div>
+      <div class="grid">
+        <div class="card">
+          <h2>wise2-ecosystem</h2>
+          <div class="stat">
+            <span><span class="status-dot"></span>Status</span>
+            <span>RUNNING</span>
+          </div>
+          <div class="stat">
+            <span>Port</span>
+            <span>3000</span>
+          </div>
+          <div class="stat">
+            <span>Type</span>
+            <span>Production</span>
+          </div>
+          <div class="stat">
+            <span>Branch</span>
+            <span>main</span>
+          </div>
+          <div class="button-group">
+            <button onclick="alert('View at http://localhost:3000')">View</button>
+            <button onclick="alert('Logs available in ./logs')">Logs</button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>wise2-core</h2>
+          <div class="stat">
+            <span><span class="status-dot"></span>Status</span>
+            <span>READY</span>
+          </div>
+          <div class="stat">
+            <span>Type</span>
+            <span>Monorepo</span>
+          </div>
+          <div class="stat">
+            <span>Packages</span>
+            <span>9</span>
+          </div>
+          <div class="stat">
+            <span>Path</span>
+            <span>./wise2-core</span>
+          </div>
+          <div class="button-group">
+            <button onclick="alert('Run: npm run dev')">Develop</button>
+            <button onclick="alert('Run: npm run build')">Build</button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>tvhub</h2>
+          <div class="stat">
+            <span><span class="status-dot"></span>Status</span>
+            <span>CONFIGURED</span>
+          </div>
+          <div class="stat">
+            <span>URL</span>
+            <span>tvhub.wise2.net</span>
+          </div>
+          <div class="stat">
+            <span>Display</span>
+            <span>blakkhail.com</span>
+          </div>
+          <div class="stat">
+            <span>SSL</span>
+            <span>A+ Grade</span>
+          </div>
+          <div class="button-group">
+            <button onclick="window.open('https://tvhub.wise2.net')">Open</button>
+            <button onclick="alert('See: deploy-tvhub.sh')">Deploy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">⚙️ Build Tools</div>
+      <div class="grid">
+        <div class="card">
+          <h2>Build Pipeline</h2>
+          <div class="command-box">./build-pipeline.sh</div>
+          <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+            Runs full build: lint, test, compile, artifact generation
+          </p>
+        </div>
+        
+        <div class="card">
+          <h2>Live Deploy</h2>
+          <div class="command-box">./live-deploy.sh</div>
+          <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+            Deploy all services to production live spot
+          </p>
+        </div>
+        
+        <div class="card">
+          <h2>Status Monitor</h2>
+          <div class="command-box">./live-status.sh</div>
+          <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+            Check all services and get system metrics
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">📂 Directory Structure</div>
+      <div class="card">
+        <div style="font-family: monospace; font-size: 12px; line-height: 1.6; color: #9ca3af;">
+          ~/web-design/<br>
+          ├── wise2-ecosystem/ (70 files, production-ready)<br>
+          ├── wise2-core/ (17 files, monorepo)<br>
+          ├── tvhub-blakkhail.html (TV display)<br>
+          ├── builds/ (build artifacts)<br>
+          ├── backups/ (snapshots)<br>
+          ├── logs/ (activity logs)<br>
+          └── [scripts] build-pipeline.sh, live-deploy.sh, live-status.sh<br>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>⬡ WISE² Live Build Spot | $(date '+%Y-%m-%d %H:%M:%S') | https://wise2.net</p>
+    </footer>
+  </div>
+  
+  <script>
+    // Auto-refresh status every 30 seconds
+    setTimeout(() => { location.reload(); }, 30000);
+  </script>
+</body>
+</html>

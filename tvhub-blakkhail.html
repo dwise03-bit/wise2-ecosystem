@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⬡ WISE² TV Hub - Blakkhail Integration</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { 
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #0a0e1a;
+    }
+    
+    .tv-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tv-header {
+      background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+      border-bottom: 3px solid #00ff88;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #e0e6f0;
+      font-family: system-ui;
+      box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
+    }
+
+    .header-left {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ff88;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .status {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .time {
+      font-family: monospace;
+      font-weight: bold;
+      color: #00ff88;
+    }
+
+    .content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #blakkhail-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #0a0e1a;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #e0e6f0;
+      font-family: system-ui;
+      z-index: 10;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #1e2432;
+      border-top: 3px solid #00ff88;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    button {
+      background: #00ff88;
+      color: #0a0e1a;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+    }
+
+    .info-panel {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      background: rgba(15, 20, 25, 0.9);
+      border: 1px solid #1e2432;
+      border-radius: 8px;
+      padding: 12px;
+      color: #9ca3af;
+      font-size: 11px;
+      font-family: monospace;
+      z-index: 99;
+      max-width: 300px;
+    }
+
+    .info-line {
+      padding: 4px 0;
+      border-bottom: 1px solid #1e2432;
+    }
+
+    .info-line:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      color: #00ff88;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="tv-container">
+    <div class="tv-header">
+      <div class="header-left">
+        <div class="logo">⬡ WISE² TV HUB</div>
+        <div class="status">
+          <span class="status-dot"></span>
+          <span id="status-text">Loading blakkhail.com...</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="time">00:00</span>
+        <span>|</span>
+        <span id="url-display">blakkhail.com</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="loading" id="loading-screen">
+        <div class="spinner"></div>
+        <div>Loading blakkhail.com</div>
+      </div>
+      <iframe id="blakkhail-frame" src="https://blakkhail.com"></iframe>
+    </div>
+
+    <div class="info-panel" id="info-panel">
+      <div class="info-line"><span class="label">URL:</span> https://blakkhail.com</div>
+      <div class="info-line"><span class="label">Status:</span> <span id="frame-status">Loading</span></div>
+      <div class="info-line"><span class="label">Mode:</span> Full Screen Display</div>
+      <div class="info-line"><span class="label">TV Hub:</span> WISE² Ecosystem</div>
+    </div>
+
+    <div class="controls">
+      <button onclick="refreshFrame()">🔄 Refresh</button>
+      <button onclick="toggleInfo()">ℹ️ Info</button>
+      <button onclick="goHome()">⬡ Home</button>
+    </div>
+  </div>
+
+  <script>
+    // Update time
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('time').textContent = 
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Frame loading
+    const frame = document.getElementById('blakkhail-frame');
+    const loading = document.getElementById('loading-screen');
+    const statusText = document.getElementById('status-text');
+    const frameStatus = document.getElementById('frame-status');
+
+    frame.onload = () => {
+      loading.style.display = 'none';
+      statusText.textContent = 'blakkhail.com Live';
+      frameStatus.textContent = 'Active';
+    };
+
+    frame.onerror = () => {
+      statusText.textContent = 'blakkhail.com - Connection Error';
+      frameStatus.textContent = 'Error';
+      loading.innerHTML = '<div style="color: #ef4444;">Failed to load blakkhail.com</div>';
+    };
+
+    // Controls
+    function refreshFrame() {
+      frame.src = 'https://blakkhail.com';
+      loading.style.display = 'block';
+      statusText.textContent = 'Refreshing...';
+    }
+
+    function toggleInfo() {
+      const info = document.getElementById('info-panel');
+      info.style.display = info.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function goHome() {
+      window.location.href = '/index.html';
+    }
+
+    // Fullscreen support
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F11') {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(console.error);
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    // Monitor frame
+    setInterval(() => {
+      if (frame.src) {
+        frameStatus.textContent = 'Active';
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

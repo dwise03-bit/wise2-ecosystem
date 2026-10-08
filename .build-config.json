@@ -1,0 +1,26 @@
+{
+  "name": "WISE² Live Build Spot",
+  "location": "~/web-design",
+  "status": "production",
+  "created": "2026-10-08",
+  "services": {
+    "wise2_ecosystem": {
+      "status": "active",
+      "type": "production",
+      "port": 3000,
+      "branch": "main"
+    },
+    "wise2_core": {
+      "status": "active",
+      "type": "monorepo",
+      "path": "wise2-core",
+      "branch": "main"
+    },
+    "tvhub": {
+      "status": "active",
+      "type": "display",
+      "port": 443,
+      "domain": "tvhub.wise2.net"
+    }
+  }
+}
